@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Ulov · статистика</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#111016;--surface:#18171e;--surface-2:#1e1d25;--line:#ffffff12;--line-strong:#ffffff1f;
+  --ink:#f4f3f8;--secondary:#b0adbd;--muted:#8c899a;
+  --accent:#8f7bf7;--accent-text:#c4b8ff;--accent-wash:#8f7bf71f;
+  --green:#5fd4a0;--blue:#6cb6ff;--amber:#f2c26b;--red:#ff7a8a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:15px/1.5 Manrope,'Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  background:radial-gradient(900px 420px at 15% -10%,#8f7bf71c,transparent 70%),var(--bg);min-height:100vh}
+.wrap{max-width:920px;margin:0 auto;padding:40px 16px 64px}
+header{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.logo{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,#8b70f6,#5f43dc);display:grid;place-items:center;box-shadow:0 8px 24px -8px #8f7bf7aa}
+.logo svg{width:22px;height:22px}
+h1{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:0}
+.sub{color:var(--muted);margin:0 0 28px;font-size:14px}
+.sub button{font:inherit;color:var(--accent-text);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 16px 14px}
+.tile .k{color:var(--muted);font-size:12.5px;font-weight:600}
+.tile .v{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-top:2px;font-variant-numeric:tabular-nums}
+.tile .h{color:var(--muted);font-size:12px;margin-top:2px}
+.tile.main{background:linear-gradient(160deg,#8f7bf726,#8f7bf70a);border-color:#8f7bf74d}
+.tile.main .v{color:var(--accent-text)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.card h2{font-size:15px;font-weight:700;margin:0;padding:16px 18px;border-bottom:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:11px 18px;text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-size:12px;font-weight:600;background:var(--surface-2)}
+tbody tr+tr td{border-top:1px solid var(--line)}
+td.ver{font-weight:700}
+td.ver small{display:block;color:var(--muted);font-weight:500;font-size:12px}
+td.zero{color:#ffffff40}
+tfoot td{border-top:1px solid var(--line-strong);font-weight:800}
+.pill{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:99px;font-size:11px;font-weight:700;background:var(--accent-wash);color:var(--accent-text);vertical-align:2px}
+.scroll{overflow-x:auto}
+.notes{margin-top:24px;color:var(--secondary);font-size:13.5px}
+.notes h3{font-size:14px;color:var(--ink);margin:0 0 8px}
+.notes ul{margin:0;padding-left:18px}
+.notes li{margin:4px 0}
+.notes b{color:var(--ink);font-weight:700}
+.state{padding:28px 18px;color:var(--muted);text-align:center}
+.state.err{color:var(--red)}
+@media (max-width:720px){
+  .tiles{grid-template-columns:repeat(2,1fr)}
+  .tile .v{font-size:26px}
+  th,td{padding:10px 8px;font-size:13.5px}
+  th{font-size:11px;white-space:normal}
+  .hide-sm{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></div>
+    <h1>Статистика Ulov</h1>
+  </header>
+  <p class="sub" id="sub">Загружаю данные с GitHub…</p>
+
+  <div class="tiles">
+    <div class="tile main"><div class="k">Скачали установщик</div><div class="v" id="t-total">–</div><div class="h">Windows + Mac</div></div>
+    <div class="tile"><div class="k">Windows</div><div class="v" id="t-win">–</div><div class="h" id="t-win-h">.exe</div></div>
+    <div class="tile"><div class="k">Mac</div><div class="v" id="t-mac">–</div><div class="h">.dmg, ставят руками</div></div>
+    <div class="tile"><div class="k">Проверок обновлений</div><div class="v" id="t-checks">–</div><div class="h">запросы latest.yml</div></div>
+  </div>
+
+  <div class="card">
+    <h2>По версиям</h2>
+    <div class="scroll" id="table"><div class="state">Загрузка…</div></div>
+  </div>
+
+  <div class="notes">
+    <h3>Как читать цифры</h3>
+    <ul>
+      <li>GitHub считает каждое скачивание файла из выпуска. Это не уникальные люди: один человек может скачать файл дважды.</li>
+      <li><b>Windows .exe</b> скачивают и люди, и автообновление Ulov. Файл <code>.blockmap</code> берёт только автообновление, поэтому «новые установки ≈ exe минус blockmap» это грубая оценка, а не точное число.</li>
+      <li><b>Mac .dmg</b> скачивают только руками, так что это почти чистые установки и ручные обновления.</li>
+      <li><b>Проверки обновлений</b> показывают, как часто запущенные копии Ulov спрашивают про новую версию. Растут вместе с числом активных пользователей.</li>
+      <li>Служебные файлы (<code>SHA256SUMS</code>, <code>.zip</code> для Mac) в подсчёт не входят. Старые сборки Sona из приватного репозитория тоже не входят: их мог скачать только владелец.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const REPO = 'Vladimire87/Ulov-releases';
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString('ru-RU');
+const dateFmt = new Intl.DateTimeFormat('ru-RU', {day:'numeric', month:'short', year:'numeric'});
+
+function classify(release){
+  const r = {tag: release.tag_name, date: release.published_at, latest:false, win:0, winMap:0, mac:0, checks:0};
+  for (const a of release.assets || []){
+    const n = a.name.toLowerCase(), c = a.download_count || 0;
+    if (n.endsWith('.exe')) r.win += c;
+    else if (n.endsWith('.exe.blockmap')) r.winMap += c;
+    else if (n.endsWith('.dmg')) r.mac += c;
+    else if (/^latest(-mac)?\.yml$/.test(n)) r.checks += c;
+  }
+  r.winNew = Math.max(r.win - r.winMap, 0);
+  return r;
+}
+
+async function fetchAll(){
+  const out = [];
+  for (let page = 1; page <= 10; page++){
+    const res = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=100&page=${page}`, {headers:{Accept:'application/vnd.github+json'}});
+    if (res.status === 403 || res.status === 429) throw new Error('GitHub временно ограничил запросы (60 в час с одного адреса). Обновите страницу позже.');
+    if (!res.ok) throw new Error('GitHub ответил ошибкой ' + res.status + '.');
+    const batch = await res.json();
+    out.push(...batch);
+    if (batch.length < 100) break;
+  }
+  return out.filter(r => !r.draft);
+}
+
+function cell(n){ return `<td class="${n ? '' : 'zero'}">${fmt(n)}</td>`; }
+
+function render(releases){
+  const rows = releases.map(classify).sort((a,b) => new Date(b.date) - new Date(a.date));
+  if (rows.length) rows[0].latest = true;
+  const sum = k => rows.reduce((s,r) => s + r[k], 0);
+  const win = sum('win'), mac = sum('mac'), checks = sum('checks'), winNew = sum('winNew');
+
+  $('t-total').textContent = fmt(win + mac);
+  $('t-win').textContent = fmt(win);
+  $('t-win-h').textContent = `.exe, из них новых ≈ ${fmt(winNew)}`;
+  $('t-mac').textContent = fmt(mac);
+  $('t-checks').textContent = fmt(checks);
+
+  if (!rows.length){ $('table').innerHTML = '<div class="state">Выпусков пока нет.</div>'; return; }
+
+  const body = rows.map(r => `<tr>
+      <td class="ver">${r.tag}${r.latest ? '<span class="pill">последняя</span>' : ''}<small>${dateFmt.format(new Date(r.date))}</small></td>
+      ${cell(r.win)}
+      <td class="hide-sm ${r.winNew ? '' : 'zero'}">${fmt(r.winNew)}</td>
+      ${cell(r.mac)}
+      ${cell(r.checks)}
+    </tr>`).join('');
+  $('table').innerHTML = `<table>
+    <thead><tr><th>Версия</th><th>Windows .exe</th><th class="hide-sm">новые ≈</th><th>Mac .dmg</th><th>Проверки</th></tr></thead>
+    <tbody>${body}</tbody>
+    <tfoot><tr><td>Всего</td><td>${fmt(win)}</td><td class="hide-sm">${fmt(winNew)}</td><td>${fmt(mac)}</td><td>${fmt(checks)}</td></tr></tfoot>
+  </table>`;
+}
+
+async function load(){
+  $('sub').textContent = 'Загружаю данные с GitHub…';
+  try {
+    render(await fetchAll());
+    const t = new Date().toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+    $('sub').innerHTML = `Живые данные из <a style="color:var(--accent-text)" href="https://github.com/${REPO}/releases">выпусков на GitHub</a>, обновлено в ${t}. <button id="reload" type="button">Обновить</button>`;
+    $('reload').onclick = load;
+  } catch (e) {
+    $('sub').textContent = 'Не получилось загрузить данные.';
+    $('table').innerHTML = `<div class="state err">${e.message}</div>`;
+  }
+}
+load();
+</script>
+</body>
+</html>
